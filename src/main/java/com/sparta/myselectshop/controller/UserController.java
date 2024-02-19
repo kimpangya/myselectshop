@@ -4,12 +4,14 @@ import com.sparta.myselectshop.dto.SignupRequestDto;
 import com.sparta.myselectshop.dto.UserInfoDto;
 import com.sparta.myselectshop.entity.UserRoleEnum;
 import com.sparta.myselectshop.security.UserDetailsImpl;
+import com.sparta.myselectshop.service.FolderService;
 import com.sparta.myselectshop.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +28,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FolderService folderService;
 
     @GetMapping("/user/login-page")
     public String loginPage() {
@@ -63,5 +66,16 @@ public class UserController {
         boolean isAdmin = (role == UserRoleEnum.ADMIN);
 
         return new UserInfoDto(username, isAdmin);
+    }
+
+    //Overriding
+    @GetMapping("/user-folder")
+    public String getUserInfo(Model model, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        //데이터 받아오기
+        model.addAttribute("folders", folderService.getFolders(userDetails.getUser()));
+
+        //이러면 내부적으로 가져온 폴더들이 알아서 보여짐
+        //#fragment 외울필요X 타임리프로 동적으로 움직이기위해서 추가
+        return "index :: #fragment";
     }
 }
