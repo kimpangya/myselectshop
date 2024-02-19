@@ -106,7 +106,7 @@ public class ProductService {
         Sort sort=Sort.by(direction, sortBy);
         Pageable pageable= PageRequest.of(page,size,sort);
 
-        Page<Product> productList = productRepository.findAllByUserAndProductFolderList_FolderId(user, folderId, pageable);
+        Page<Product> productList = productRepository.findAllByUserAndProductFoldersList_FolderId(user, folderId, pageable);
 
         //받아왔으면 변환하자
         Page<ProductResponseDto> responseDtoList = productList.map(ProductResponseDto::new);

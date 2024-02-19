@@ -14,6 +14,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     //Product 엔티티에서 양방향으로 설정했음, 여기서 Folder 가져오려고 하는거임
     //우리가 받아온 폴더 아이디 이용해서 해당하는 폴더에 있는 Product 리스트 가져오자
-    Page<Product> findAllByUserAndProductFolderList_FolderId(User user, Long folderId, Pageable pageable);
-
+    Page<Product> findAllByUserAndProductFoldersList_FolderId(User user, Long folderId, Pageable pageable);
 }
