@@ -50,8 +50,8 @@ public class ProductService {
         return new ProductResponseDto(product);
     }
 
-    @Transactional(readOnly = true)
     //얘 지연로딩 씀 = 영속성 컨텍스트로 관리되어야 함 = 트랜잭션 환경 필요함
+    @Transactional(readOnly = true)
     public Page<ProductResponseDto> getProducts(User user, int page, int size, String sortBy, boolean isAsc) {
         Sort.Direction direction=isAsc?Sort.Direction.ASC:Sort.Direction.DESC;
         Sort sort=Sort.by(direction, sortBy);
@@ -66,10 +66,10 @@ public class ProductService {
             productList=productRepository.findAll(pageable);
         }
 
-        //Page안에 map보면 잘바꿔주는거있음bb
         return productList.map(ProductResponseDto::new);
     }
 
+    //Page안에 map보면 잘바꿔주는거있음bb
     @Transactional
     public void updateBySearch(Long id, ItemDto itemDto) {
         Product product = productRepository.findById(id).orElseThrow(()->
