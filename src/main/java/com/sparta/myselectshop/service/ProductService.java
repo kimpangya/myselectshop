@@ -4,12 +4,14 @@ import com.sparta.myselectshop.dto.ProductMypriceRequestDto;
 import com.sparta.myselectshop.dto.ProductRequestDto;
 import com.sparta.myselectshop.dto.ProductResponseDto;
 import com.sparta.myselectshop.entity.*;
+import com.sparta.myselectshop.exception.ProductNotFoundException;
 import com.sparta.myselectshop.naver.dto.ItemDto;
 import com.sparta.myselectshop.repository.FolderRepository;
 import com.sparta.myselectshop.repository.ProductFolderRepository;
 import com.sparta.myselectshop.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.service.NullServiceException;
+import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -28,6 +31,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final FolderRepository folderRepository;
     private final ProductFolderRepository productFolderRepository;
+    private final MessageSource messageSource;
 
     public static final int MIN_MY_PRICE=100;
 
@@ -40,11 +44,28 @@ public class ProductService {
     public ProductResponseDto updateProduct(Long id, ProductMypriceRequestDto requestDto) {
         int myprice=requestDto.getMyprice();
         if(myprice<MIN_MY_PRICE){
-            throw new IllegalArgumentException("유효하지 않은 관심 가격입니다. 최소 "+MIN_MY_PRICE+"원 이상으로 설정해 주세요.");
+            throw new IllegalArgumentException(
+                    messageSource.getMessage(
+                            "below.min.my.price",
+                            //메시지 내에서 매개변수로 전달할 경우 전달할 값
+                            //{}안 값
+                            new Integer[]{MIN_MY_PRICE},
+                            //만약 code값 못찾으면 이거 출력
+                            "Wrong Price",
+                            //기본 언어설정 우리 서비스가 국제화 될 때 한국어로 표시 => 해당 언어 ex)영어로 번역
+                            Locale.getDefault()
+
+                    )
+            );
         }
 
         Product product=productRepository.findById(id).orElseThrow(()->
-                new NullPointerException("해당 상품을 찾을 수 없습니다"));
+                new ProductNotFoundException(messageSource.getMessage(
+                        "not.found.product",
+                        null,
+                        "Not Found Product",
+                        Locale.getDefault()
+                )));
 
         product.update(requestDto);
         return new ProductResponseDto(product);
